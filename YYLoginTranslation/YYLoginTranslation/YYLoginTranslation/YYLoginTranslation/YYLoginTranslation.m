@@ -35,6 +35,7 @@
     self.transitionContext = transitionContext;
     if (self.doLogin)//登录转场动画
     {
+        /*
         __block UIView* containerView = [transitionContext containerView];
         YYFirstViewController* toVC = (YYFirstViewController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         YYLoginViewController* fromVC = (YYLoginViewController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
@@ -121,6 +122,36 @@
             containerView = nil;
             [fromVC reloadView];//登录界面重载UI
         }];
+         */
+        
+        UIView *containerView = [transitionContext containerView];
+        YYFirstViewController* toVC = (YYFirstViewController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+        YYLoginViewController* fromVC = (YYLoginViewController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+        [containerView addSubview:toVC.view];
+        
+        CGPoint maskCenter = CGPointMake([UIScreen mainScreen].bounds.size.width, 0);
+        CGFloat radius = [self calculateDistanceWithPoint:maskCenter otherPoint:CGPointMake(0, [UIScreen mainScreen].bounds.size.height)];
+
+        CGRect r = CGRectMake(maskCenter.x, maskCenter.y, 0.01, 0.01);
+        UIBezierPath *path1 = [UIBezierPath bezierPathWithOvalInRect:r];
+        UIBezierPath *path2 = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(r, -radius, -radius)];
+
+        CAShapeLayer *mask = [CAShapeLayer layer];
+        mask.path = path1.CGPath;
+        toVC.view.layer.mask = mask;
+
+
+        CABasicAnimation *maskLayerAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+        maskLayerAnimation.fromValue = (__bridge id)(path1.CGPath);
+        maskLayerAnimation.toValue = (__bridge id)((path2.CGPath));
+        maskLayerAnimation.duration = 0.38;
+        maskLayerAnimation.removedOnCompletion = NO;
+        maskLayerAnimation.fillMode = kCAFillModeForwards;
+        maskLayerAnimation.delegate = self;
+        [mask addAnimation:maskLayerAnimation forKey:@"path"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.38 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [fromVC reloadView];
+        });
     }
     else//退出登录转场动画
     {

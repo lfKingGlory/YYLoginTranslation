@@ -25,6 +25,7 @@
     [super viewDidLoad];
     
     [self setupUIComponent];
+    self.view.backgroundColor = [UIColor redColor];
 }
 
 /** 初始化UI */
